@@ -7,6 +7,15 @@ public class GameEvent : ScriptableObject
 {
     private List<EventListenerComponent> listeners;
 
+    //For getting events without using serialized fields
+    [SerializeField] string eventName;
+    private static Dictionary<string, GameEvent> events;
+
+    private void Awake()
+    {
+        events.Add(eventName, this);
+        Debug.Log(eventName);
+    }
     public void RegisterCallback(EventListenerComponent listener)
     {
         listeners.Add(listener);
@@ -24,4 +33,9 @@ public class GameEvent : ScriptableObject
             listener.InvokeListener();
         }
     }
+    public static GameEvent GetEvent(string name)
+    {
+        return events[name];
+    }
+
 }
