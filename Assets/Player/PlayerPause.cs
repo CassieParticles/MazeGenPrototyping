@@ -4,8 +4,8 @@ using UnityEngine.InputSystem;
 
 public class PlayerPause : MonoBehaviour
 {
-    GameEvent pauseEvent;
-    GameEvent unpauseEvent;
+    [SerializeField]GameEvent pauseEvent;
+    [SerializeField]GameEvent unpauseEvent;
 
     PlayerMovement playerMovement;
 
@@ -33,8 +33,7 @@ public class PlayerPause : MonoBehaviour
 
     private void Start()
     {
-        pauseEvent = GameEvent.GetEvent("Pause");
-        unpauseEvent = GameEvent.GetEvent("Unpause");
+
     }
 
     private void PauseKeyPress(InputAction.CallbackContext context)

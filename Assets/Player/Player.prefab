@@ -152,6 +152,7 @@ GameObject:
   - component: {fileID: 6362259920775399837}
   - component: {fileID: -3441539715713857874}
   - component: {fileID: 3666491260635737251}
+  - component: {fileID: 2105201149559894498}
   - component: {fileID: 3429470009156755267}
   - component: {fileID: 1422696701506314582}
   m_Layer: 0
@@ -307,6 +308,20 @@ MonoBehaviour:
   moveSpeed: 5
   mouseSensitivity: 300
   playerInput: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+--- !u!114 &2105201149559894498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7987243650641724690}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5bb74bfca45a3a418ddc4c2ec268f6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pauseEvent: {fileID: 11400000, guid: 217ef76ac4cf37541a9e51c55935b900, type: 2}
+  unpauseEvent: {fileID: 11400000, guid: cddae90103593d74d86a2d910b91c85e, type: 2}
 --- !u!114 &3429470009156755267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -319,7 +334,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7631186d4b41b014bb125cadfd381024, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eventSignal: {fileID: 11400000, guid: 57c76a71d0fe36f41b4e0ae3f0e50c34, type: 2}
+  eventSignal: {fileID: 11400000, guid: 217ef76ac4cf37541a9e51c55935b900, type: 2}
   events:
     m_PersistentCalls:
       m_Calls:
@@ -347,7 +362,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7631186d4b41b014bb125cadfd381024, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eventSignal: {fileID: 11400000, guid: 98cc692b73aacf64bba2a827147879e9, type: 2}
+  eventSignal: {fileID: 11400000, guid: cddae90103593d74d86a2d910b91c85e, type: 2}
   events:
     m_PersistentCalls:
       m_Calls:
