@@ -43,12 +43,12 @@ public class PlayerController : MonoBehaviour
     private void MovePlayer(InputAction.CallbackContext context)
     {
         //Setsz variable in playerMovement, ensures player movement doesn't depend on controller
-        playerMovement.moveDirection = context.ReadValue<Vector2>();
+        playerMovement.MoveDirection = context.ReadValue<Vector2>();
     }
 
     private void LookPlayer(InputAction.CallbackContext context)
     {
         //Setsz variable in playerMovement, ensures player movement doesn't depend on controller
-        playerMovement.lookVector = context.ReadValue<Vector2>();
+        playerMovement.LookVector = context.ReadValue<Vector2>();
     }
 }
