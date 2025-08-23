@@ -5,8 +5,6 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerMovement))]
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField]private InputActionAsset playerInput;
-
     private InputAction move;
     private InputAction look;
 
@@ -15,11 +13,11 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        //Get input actions
-        move = playerInput.FindAction("Move");
-        look = playerInput.FindAction("Look");
-
         playerMovement = GetComponent<PlayerMovement>();
+
+        //Get input actions
+        move = playerMovement.PlayerInput.FindAction("Move");
+        look = playerMovement.PlayerInput.FindAction("Look");
     }
 
     private void OnEnable()

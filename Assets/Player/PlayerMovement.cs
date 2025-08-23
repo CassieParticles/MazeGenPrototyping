@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -29,6 +30,13 @@ public class PlayerMovement : MonoBehaviour
     [Header("Player controls")]
     [SerializeField] private float moveSpeed = 5.0f;
     [SerializeField] private float mouseSensitivity = 300.0f;
+
+    //Player input controls
+    [SerializeField] private InputActionAsset playerInput;
+    public InputActionAsset PlayerInput
+    {
+        get => playerInput;
+    }
 
     private Transform cameraTransform;
 
