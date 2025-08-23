@@ -7,9 +7,9 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3fe1abb126df8604194b61580fa503a8, type: 3}
-  m_Name: GameUnpaused
+  m_Name: Unpause
   m_EditorClassIdentifier: 
-  eventName: Unpause
+  eventName: 
