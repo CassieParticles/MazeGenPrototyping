@@ -29,6 +29,9 @@ public class PlayerController : MonoBehaviour
         look.performed += LookPlayer;
         move.canceled += MovePlayer;
         look.canceled += LookPlayer;
+
+        //Lock cursor when player controls are enabled
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void OnDisable()
@@ -38,11 +41,14 @@ public class PlayerController : MonoBehaviour
         look.performed -= LookPlayer;
         move.canceled -= MovePlayer;
         look.canceled -= LookPlayer;
+
+        //Unlock controls when player controls are disabled
+        Cursor.lockState = CursorLockMode.None;
     }
 
     private void MovePlayer(InputAction.CallbackContext context)
     {
-        //Setsz variable in playerMovement, ensures player movement doesn't depend on controller
+        //Sets variable in playerMovement, ensures player movement doesn't depend on controller
         playerMovement.MoveDirection = context.ReadValue<Vector2>();
     }
 
