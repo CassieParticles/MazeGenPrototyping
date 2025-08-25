@@ -30,12 +30,6 @@ public class PlayerPause : MonoBehaviour
     {
         PauseKey.started -= PauseKeyPress;
     }
-
-    private void Start()
-    {
-
-    }
-
     private void PauseKeyPress(InputAction.CallbackContext context)
     {
         //Change if game is paused or unpaused
