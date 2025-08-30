@@ -49,7 +49,6 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         cameraTransform = GetComponentInChildren<Camera>().transform;
-        
     }
 
     private void Update()
