@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -30,11 +31,11 @@ namespace Maze
             //Add node
             node = grid.AddNode(node, index);
 
-            //Set up connections
-            MazeNode rightNode = grid.GetNode(position + Vector2Int.right);
-            MazeNode upNode = grid.GetNode(position + Vector2Int.up);
-            MazeNode leftNode = grid.GetNode(position + Vector2Int.left);
-            MazeNode downNode = grid.GetNode(position + Vector2Int.down);
+            //Set up connections (only if those doors exist)
+            MazeNode rightNode = node.RightDoor ? grid.GetNode(position + Vector2Int.right) : null;
+            MazeNode upNode = node.UpDoor ? grid.GetNode(position + Vector2Int.up) : null;
+            MazeNode leftNode = node.LeftDoor ? grid.GetNode(position + Vector2Int.left) : null;
+            MazeNode downNode = node.DownDoor ? grid.GetNode(position + Vector2Int.down) : null;
 
             if(rightNode)
             {
@@ -76,18 +77,28 @@ namespace Maze
 
     public class MazeNode
     {
+        //Neighbors it's connected to (only ones that exist)
         MazeNode[] neighbors;   //Right, up, left, down
-
-        public int order { get;private set; }
 
         public MazeNode RightNode { get => neighbors[0]; set { neighbors[0] = value; } }
         public MazeNode UpNode { get => neighbors[1]; set { neighbors[1] = value; } }
         public MazeNode LeftNode { get => neighbors[2]; set { neighbors[2] = value; } }
         public MazeNode DownNode { get => neighbors[3]; set { neighbors[3] = value; } }
 
-        public MazeNode()
+        //Doors to other rooms (connections that could be made)
+        private byte doorFlags; //Layout 0b0000RULD
+
+        public bool RightDoor { get => (doorFlags & 0b00001000) == 0b00001000; }
+        public bool UpDoor { get => (doorFlags & 0b00000100) == 0b00000100; }
+        public bool LeftDoor { get => (doorFlags & 0b00000010) == 0b00000010; }
+        public bool DownDoor { get => (doorFlags & 0b00000001) == 0b00000001; }
+
+        public int order { get; private set; }
+
+        public MazeNode(byte doorFlags)
         {
             neighbors = new MazeNode[4];
+            this.doorFlags = doorFlags;
         }
 
         public static implicit operator bool(MazeNode node) => node != null;

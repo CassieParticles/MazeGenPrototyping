@@ -11,12 +11,8 @@ public class MazeGenerator : MonoBehaviour
     {
         mazeGraph = new Graph(10, 10);
 
-        mazeGraph.AddNode(new MazeNode(), new Vector2Int(3, 4));
-        mazeGraph.AddNode(new MazeNode(), new Vector2Int(3, 5));
-        mazeGraph.AddNode(new MazeNode(), new Vector2Int(3, 6));
-        mazeGraph.AddNode(new MazeNode(), new Vector2Int(4, 5));
-        mazeGraph.AddNode(new MazeNode(), new Vector2Int(5, 5));
-        mazeGraph.AddNode(new MazeNode(), new Vector2Int(3, 1));
+        mazeGraph.AddNode(new MazeNode(0b00000111), new Vector2Int(2, 2));  //Left
+        mazeGraph.AddNode(new MazeNode(0b00001101), new Vector2Int(3, 2));  //Right
     }
     void Start()
     {
