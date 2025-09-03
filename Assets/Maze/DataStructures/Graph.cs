@@ -19,17 +19,36 @@ namespace Maze
             root = null;
         }
 
-        public MazeNode AddNode(MazeNode node, Vector2Int position)
+        public void SetRootNode(MazeNode node)
         {
-            return AddNode(node, grid.IndexFromPosition(position));
+            List<int> checkedNodes = new List<int>();
+            node.UpdateOrder(0,ref checkedNodes);
+
+            root = node;
         }
 
-        public MazeNode AddNode(MazeNode node, int index)
+        public void SetRootNode(Vector2Int position)
+        {
+            SetRootNode(grid.IndexFromPosition(position));
+        }
+
+        public void SetRootNode(int index)
+        {
+            SetRootNode(grid.GetNode(index));
+        }
+
+        public MazeNode AddNode(byte doorFlags, Vector2Int position)
+        {
+            return AddNode(doorFlags, grid.IndexFromPosition(position));
+        }
+
+
+        public MazeNode AddNode(byte doorFlags, int index)
         {
             Vector2Int position = grid.PositionFromIndex(index);
 
             //Add node
-            node = grid.AddNode(node, index);
+            MazeNode node = grid.AddNode(new MazeNode(doorFlags,grid.PositionFromIndex(index),index), index);
 
             //Set up connections (only if those doors exist)
             MazeNode rightNode = node.RightDoor ? grid.GetNode(position + Vector2Int.right) : null;
@@ -88,6 +107,9 @@ namespace Maze
         //Doors to other rooms (connections that could be made)
         private byte doorFlags; //Layout 0b0000RULD
 
+        public Vector2Int position { get; private set; }
+        public int index { get;private set; }
+
         public bool RightDoor { get => (doorFlags & 0b00001000) == 0b00001000; }
         public bool UpDoor { get => (doorFlags & 0b00000100) == 0b00000100; }
         public bool LeftDoor { get => (doorFlags & 0b00000010) == 0b00000010; }
@@ -95,10 +117,29 @@ namespace Maze
 
         public int order { get; private set; }
 
-        public MazeNode(byte doorFlags)
+        public MazeNode(byte doorFlags,Vector2Int position, int index)
         {
             neighbors = new MazeNode[4];
             this.doorFlags = doorFlags;
+
+            this.position = position;
+            this.index = index;
+        }
+
+        public void UpdateOrder(int order, ref List<int> checkedNodes)
+        {
+            //Exit if node already visited and order is higher (allow shorter distances to update graph)
+            if (checkedNodes.Contains(index) && this.order <= order){ return; }
+
+            //Update order and confirm this node is checked
+            this.order = order;
+            checkedNodes.Add(index);
+
+            //Recurse through neighbors
+            for(int i=0;i<4;++i)
+            {
+                neighbors[i]?.UpdateOrder(order + 1, ref checkedNodes);
+            }
         }
 
         public static implicit operator bool(MazeNode node) => node != null;
