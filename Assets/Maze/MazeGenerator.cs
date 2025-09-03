@@ -6,11 +6,13 @@ using UnityEngine;
 public class MazeGenerator : MonoBehaviour
 {
     [SerializeField] private GameObject[] RoomTemplates;
-    [SerializeField] private int roomDepth;
+    [SerializeField] private int roomDepth = 3;
 
     private Graph mazeGraph;
 
     private PlayerMovement player;
+
+    private Vector2Int[] RULDOrder = {Vector2Int.right,Vector2Int.up,Vector2Int.left,Vector2Int.down };
 
     private void Awake()
     {
@@ -18,15 +20,10 @@ public class MazeGenerator : MonoBehaviour
 
         player = FindAnyObjectByType<PlayerMovement>();
 
-        for(int x=0;x<10;++x)
-        {
-            for(int y=0;y<10;++y)
-            {
-                GenerateRandomNode(new Vector2Int(x, y), ref mazeGraph);
-            }
-        }
+        CreateRoom(0b00001100,new Vector2Int(0, 0));
 
         mazeGraph.SetRootNode(new Vector2Int(0, 0));
+        UpdateMaze();
     }
 
     public void PlayerChangeRooms()
@@ -37,14 +34,14 @@ public class MazeGenerator : MonoBehaviour
         newGridPos.y = (int)player.transform.position.z / 10;
 
         Debug.Log("Updating root");
-        UpdateMaze(newGridPos, ref mazeGraph);
+        //Set the root and update the grid with new orders
+        mazeGraph.SetRootNode(newGridPos);
+
+        UpdateMaze();
     }
 
-    private void UpdateMaze(Vector2Int rootGridPosition, ref Graph mazeGraph)
+    private void UpdateMaze()
     {
-        //Set the root and update the grid with new orders
-        mazeGraph.SetRootNode(rootGridPosition);
-
         //Breadth first traversal to remove orders too high and add new nodes on rooms too low
         List<int> visitedNodes = new List<int>();
         Queue<MazeNode> nodesToVisit = new Queue<MazeNode>();
@@ -52,7 +49,6 @@ public class MazeGenerator : MonoBehaviour
         //Add root to the queue
         MazeNode root = mazeGraph.root;
         nodesToVisit.Enqueue(root);
-        visitedNodes.Add(root.index);
 
         //Iterate through all nodes still yet to visit
         while(nodesToVisit.Count > 0)
@@ -68,7 +64,18 @@ public class MazeGenerator : MonoBehaviour
 
             visitedNodes.Add(current.index);
 
-            
+            if(current.order < roomDepth)
+            {
+                //Add rooms around
+                for(int i=0;i<4;++i)
+                {
+                    //ITERATE RULD ORDER
+                    if(!current.neighbors[i] && (current.doorFlags & 0b00001000 >> i) > 0)
+                    {
+                        GenerateRandomNode(current.position + RULDOrder[i]);
+                    }
+                }
+            }
 
             //Adding children to end ensures all nodes of this order are traversed before next order
             for(int i=0;i<4;++i)
@@ -77,14 +84,19 @@ public class MazeGenerator : MonoBehaviour
                 MazeNode neighbor = current.neighbors[i];
                 if (!neighbor){ continue; }
 
-                //Checks to see if room should be destroyed or new room added
-
                 nodesToVisit.Enqueue((MazeNode)neighbor);
+            }
+
+            //Checks to see if node should be destroyed
+            if (current.order > roomDepth)
+            {
+                //Remove room
+                mazeGraph.RemoveNode(current);
             }
         }
     }
 
-    private MazeNode GenerateRandomNode(Vector2Int position, ref Graph mazeGraph)
+    private MazeNode GenerateRandomNode(Vector2Int position)
     {
         //Generate bit flags for where doors are and aren't
         byte doorFlags = 0b0000000;
@@ -135,13 +147,13 @@ public class MazeGenerator : MonoBehaviour
         }
 
         //Create node and return it
-        return CreateRoom(doorFlags, position, ref mazeGraph);
+        return CreateRoom(doorFlags, position);
     }
 
-    private MazeNode CreateRoom(byte doorFlags, Vector2Int position, ref Graph mazeGraph)
+    private MazeNode CreateRoom(byte doorFlags, Vector2Int position)
     {
         //Create node and return it
-        return mazeGraph.AddNode(doorFlags, position, GameObject.Instantiate(RoomTemplates[(int)doorFlags]));
+        return mazeGraph.AddNode(doorFlags, position, RoomTemplates[(int)doorFlags]);
     }
 
 }

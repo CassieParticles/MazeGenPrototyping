@@ -41,10 +41,14 @@ namespace Maze
 
         public MazeNode AddNode(byte doorFlags, Vector2Int position, GameObject roomObject)
         {
+            if (position.x < 0 || position.x >= grid.width || position.y < 0 || position.y >= grid.height){ return null; }
             return AddNode(doorFlags, grid.IndexFromPosition(position),roomObject);
         }
         public MazeNode AddNode(byte doorFlags, int index, GameObject roomObject)
         {
+            //Don't override node
+            if (grid.GetNode(index)){ return grid.GetNode(index); }
+
             Vector2Int position = grid.PositionFromIndex(index);
 
             //Add node
@@ -56,26 +60,35 @@ namespace Maze
             MazeNode leftNode = node.LeftDoor ? grid.GetNode(position + Vector2Int.left) : null;
             MazeNode downNode = node.DownDoor ? grid.GetNode(position + Vector2Int.down) : null;
 
+            int minOrder = 9999;
+
             if(rightNode)
             {
                 node.RightNode = rightNode;
                 rightNode.LeftNode = node;
+                minOrder = Mathf.Min(minOrder, rightNode.order);
             }
             if (upNode)
             {
                 node.UpNode = upNode;
                 upNode.DownNode = node;
+                minOrder = Mathf.Min(minOrder, upNode.order);
             }
             if (leftNode)
             {
                 node.LeftNode = leftNode;
                 leftNode.RightNode = node;
+                minOrder = Mathf.Min(minOrder, leftNode.order);
             }
             if (downNode)
             {
                 node.DownNode = downNode;
                 downNode.UpNode = node;
+                minOrder = Mathf.Min(minOrder, downNode.order);
             }
+
+
+            node.order = minOrder + 1;
 
             //Return the node
             return node;
@@ -133,7 +146,7 @@ namespace Maze
         public bool LeftDoor { get => (doorFlags & 0b00000010) == 0b00000010; }
         public bool DownDoor { get => (doorFlags & 0b00000001) == 0b00000001; }
 
-        public int order { get; private set; }
+        public int order;
 
         public MazeNode(byte doorFlags,Vector2Int position, int index, GameObject roomObject)
         {
@@ -143,9 +156,12 @@ namespace Maze
             this.position = position;
             this.index = index;
 
-            this.roomObject = roomObject;
+            this.roomObject = GameObject.Instantiate(roomObject);
 
-            roomObject.transform.position = new Vector3(position.x * 10, 0, position.y * 10);
+            
+            Debug.Log(position);
+
+            this.roomObject.transform.position = new Vector3(position.x * 10, 0, position.y * 10);
         }
 
         ~MazeNode()

@@ -127,6 +127,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -9023848302054043929, guid: 56c1c709ebf27304496112a897075cfa, type: 3}
+      propertyPath: roomDepth
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3265434276570534448, guid: 56c1c709ebf27304496112a897075cfa, type: 3}
       propertyPath: m_Name
       value: MazeGenerator
