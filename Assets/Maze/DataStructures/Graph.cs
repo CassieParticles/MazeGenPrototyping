@@ -13,6 +13,9 @@ namespace Maze
 
         public MazeNode root { get; private set; }
 
+        //Breadth first order of nodes in graph
+        private List<MazeNode> BFG;
+
         public Graph(int width, int height)
         {
             grid = new MazeGrid(width, height);
@@ -37,6 +40,46 @@ namespace Maze
         public void SetRootNode(int index)
         {
             SetRootNode(grid.GetNode(index));
+        }
+
+        //Update the BFG (Breadth first graph) of the maze graph
+        public void UpdateBFG()
+        {
+            //Clear old BFG
+            BFG.Clear();
+
+            //Perform a breadth first traversal of the graph
+            Queue<MazeNode> nodesToVisit = new Queue<MazeNode>();
+            List<int> nodesVisited = new List<int>();
+
+            //Queue the root as the first node to visit
+            nodesToVisit.Enqueue(root);
+
+            //Visit nodes till all accessible nodes are visited
+            while(nodesToVisit.Count > 0)
+            {
+                MazeNode current = nodesToVisit.Dequeue();
+                //Skip nodes that have already been visited
+                if(nodesVisited.Contains(current.index))
+                {
+                    continue;
+                }
+
+                //Add node to BFG
+                nodesVisited.Add(current.index);
+                BFG.Add(current);
+
+                //Add children to end of queue (will be visited after all nodes of current order)
+                for (int i = 0; i < 4; ++i)
+                {
+                    //Null check
+                    MazeNode neighbor = current.neighbors[i];
+                    if (!neighbor || nodesVisited.Contains(neighbor.index)){ continue; }
+
+                    //Enqueue neighbor
+                    nodesToVisit.Enqueue(neighbor);
+                }
+            }
         }
 
         public MazeNode AddNode(byte doorFlags, Vector2Int position, GameObject roomObject)
@@ -157,9 +200,6 @@ namespace Maze
             this.index = index;
 
             this.roomObject = GameObject.Instantiate(roomObject);
-
-            
-            Debug.Log(position);
 
             this.roomObject.transform.position = new Vector3(position.x * 10, 0, position.y * 10);
         }

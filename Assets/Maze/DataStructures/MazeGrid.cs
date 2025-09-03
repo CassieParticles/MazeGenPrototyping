@@ -6,7 +6,6 @@ namespace Maze
 {
     public class MazeGrid
     {
-
         private MazeNode[] nodeArray;
 
         public int width { get; private set; }
