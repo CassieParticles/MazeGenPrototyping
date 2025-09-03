@@ -8,12 +8,12 @@ public class EventListenerComponent : MonoBehaviour
 
     private void OnEnable()
     {
-        eventSignal.RegisterCallback(this);
+        eventSignal?.RegisterCallback(this);
     }
 
     private void OnDisable()
     {
-        eventSignal.UnregisterCallback(this);
+        eventSignal?.UnregisterCallback(this);
     }
 
     public void InvokeListener()
