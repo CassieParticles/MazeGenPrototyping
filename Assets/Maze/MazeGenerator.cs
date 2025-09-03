@@ -30,8 +30,8 @@ public class MazeGenerator : MonoBehaviour
     {
         Vector2Int newGridPos = Vector2Int.zero;
 
-        newGridPos.x = (int)player.transform.position.x / 10;
-        newGridPos.y = (int)player.transform.position.z / 10;
+        newGridPos.x = ((int)player.transform.position.x + 5) / 10;
+        newGridPos.y = ((int)player.transform.position.z + 5) / 10;
 
         Debug.Log("Updating root");
         //Set the root and update the grid with new orders
@@ -42,56 +42,27 @@ public class MazeGenerator : MonoBehaviour
 
     private void UpdateMaze()
     {
-        //Breadth first traversal to remove orders too high and add new nodes on rooms too low
-        List<int> visitedNodes = new List<int>();
-        Queue<MazeNode> nodesToVisit = new Queue<MazeNode>();
+        mazeGraph.UpdateBFG();
 
-        //Add root to the queue
-        MazeNode root = mazeGraph.root;
-        nodesToVisit.Enqueue(root);
-
-        //Iterate through all nodes still yet to visit
-        while(nodesToVisit.Count > 0)
+        for(int i=0;i<mazeGraph.BFG.Count;++i)
         {
-            //Add the current node
-            MazeNode current = nodesToVisit.Dequeue();
-
-            //Skip node if it's already visited
-            if(visitedNodes.Contains(current.index))
-            {
-                continue;
-            }
-
-            visitedNodes.Add(current.index);
-
+            MazeNode current = mazeGraph.BFG[i];
             if(current.order < roomDepth)
             {
-                //Add rooms around
-                for(int i=0;i<4;++i)
+                for (int j = 0; j < 4; ++j)
                 {
                     //ITERATE RULD ORDER
-                    if(!current.neighbors[i] && (current.doorFlags & 0b00001000 >> i) > 0)
+                    if (!current.neighbors[j] && (current.doorFlags & 0b00001000 >> j) > 0)
                     {
-                        GenerateRandomNode(current.position + RULDOrder[i]);
+                        GenerateRandomNode(current.position + RULDOrder[j]);
                     }
                 }
             }
-
-            //Adding children to end ensures all nodes of this order are traversed before next order
-            for(int i=0;i<4;++i)
+            if(current.order > roomDepth)
             {
-                //Null check
-                MazeNode neighbor = current.neighbors[i];
-                if (!neighbor){ continue; }
-
-                nodesToVisit.Enqueue((MazeNode)neighbor);
-            }
-
-            //Checks to see if node should be destroyed
-            if (current.order > roomDepth)
-            {
-                //Remove room
                 mazeGraph.RemoveNode(current);
+                i--;
+                continue;
             }
         }
     }

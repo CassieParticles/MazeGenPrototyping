@@ -14,7 +14,9 @@ namespace Maze
         public MazeNode root { get; private set; }
 
         //Breadth first order of nodes in graph
-        private List<MazeNode> BFG;
+        public List<MazeNode> BFG { get; private set; }
+        //Where each order starts
+        public List<int> orderIndices{ get; private set; }
 
         public Graph(int width, int height)
         {
@@ -23,12 +25,12 @@ namespace Maze
             root = null;
 
             BFG = new List<MazeNode>();
+            orderIndices = new List<int>();
         }
 
         public void SetRootNode(MazeNode node)
         {
             List<int> checkedNodes = new List<int>();
-            node.UpdateOrder(0,ref checkedNodes);
 
             root = node;
         }
@@ -49,38 +51,61 @@ namespace Maze
         {
             //Clear old BFG
             BFG.Clear();
+            orderIndices.Clear();
 
             //Perform a breadth first traversal of the graph
-            Queue<MazeNode> nodesToVisit = new Queue<MazeNode>();
+            Queue<MazeNode> NextOrderNodes = new Queue<MazeNode>();
+            Queue<MazeNode> ThisOrderNodes = new Queue<MazeNode>();
+
             List<int> nodesVisited = new List<int>();
 
+            int currentOrder = 0;
+
             //Queue the root as the first node to visit
-            nodesToVisit.Enqueue(root);
+            ThisOrderNodes.Enqueue(root);
 
-            //Visit nodes till all accessible nodes are visited
-            while(nodesToVisit.Count > 0)
+            //Visit nodes untill all nodes are visited
+            while (ThisOrderNodes.Count > 0 || NextOrderNodes.Count > 0)
             {
-                MazeNode current = nodesToVisit.Dequeue();
-                //Skip nodes that have already been visited
-                if(nodesVisited.Contains(current.index))
+                //Visit all nodes of this order
+                while (ThisOrderNodes.Count > 0)
                 {
-                    continue;
+                    MazeNode current = ThisOrderNodes.Dequeue();
+                    //Skip nodes that have already been visited
+                    if (nodesVisited.Contains(current.index))
+                    {
+                        continue;
+                    }
+
+                    //Add node to BFG
+                    nodesVisited.Add(current.index);
+                    BFG.Add(current);
+                    current.order = currentOrder;
+
+                    //Add children to end of queue (will be visited after all nodes of current order)
+                    for (int i = 0; i < 4; ++i)
+                    {
+                        //Null check
+                        MazeNode neighbor = current.neighbors[i];
+                        if (!neighbor || nodesVisited.Contains(neighbor.index))
+                        { continue; }
+
+                        //Enqueue neighbor
+                        NextOrderNodes.Enqueue(neighbor);
+                    }
                 }
 
-                //Add node to BFG
-                nodesVisited.Add(current.index);
-                BFG.Add(current);
+                //Swap the queues, and clear the new Next order nodes (reduces allocations)
+                Queue<MazeNode> temp = ThisOrderNodes;
+                ThisOrderNodes = NextOrderNodes;
+                NextOrderNodes = temp;
 
-                //Add children to end of queue (will be visited after all nodes of current order)
-                for (int i = 0; i < 4; ++i)
-                {
-                    //Null check
-                    MazeNode neighbor = current.neighbors[i];
-                    if (!neighbor || nodesVisited.Contains(neighbor.index)){ continue; }
+                //Add the index the next order starts at
+                orderIndices.Add(BFG.Count);
 
-                    //Enqueue neighbor
-                    nodesToVisit.Enqueue(neighbor);
-                }
+                currentOrder++;
+
+                NextOrderNodes.Clear();
             }
         }
 
@@ -135,23 +160,50 @@ namespace Maze
 
             node.order = minOrder + 1;
 
+            //Insert the node into the BFG
+            if (orderIndices.Count <= node.order)
+            {
+                orderIndices.Add(BFG.Count);
+                BFG.Add(node);
+            }
+            else
+            {
+                BFG.Insert(orderIndices[node.order], node);
+            }
+
+
+            //Update the order indices to reflect where each order starts
+            for(int i=node.order;i<orderIndices.Count;++i)
+            {
+                orderIndices[i]++;
+            }
+
             //Return the node
             return node;
         }
 
         public void RemoveNode(MazeNode node)
         {
+            //Remove node from BFG
+            BFG.Remove(node);
+
+            //Iterate through later orders to reflect where they now start
+            for(int i=0;i<node.order;++i)
+            {
+                orderIndices[i]--;
+            }
+
             grid.RemoveNode(node);
         }
 
         public void RemoveNode(Vector2Int position)
         {
-            grid.RemoveNode(position);
+            RemoveNode(grid.GetNode(position));
         }
 
         public void RemoveNode(int index)
         {
-            grid.RemoveNode(index);
+            RemoveNode(grid.GetNode(index));
         }
 
         public MazeNode GetNode(Vector2Int position)
@@ -209,22 +261,6 @@ namespace Maze
         ~MazeNode()
         {
             Debug.Log("Node destroyed");
-        }
-
-        public void UpdateOrder(int order, ref List<int> checkedNodes)
-        {
-            //Exit if node already visited and order is higher (allow shorter distances to update graph)
-            if (checkedNodes.Contains(index) && this.order <= order){ return; }
-
-            //Update order and confirm this node is checked
-            this.order = order;
-            checkedNodes.Add(index);
-
-            //Recurse through neighbors
-            for(int i=0;i<4;++i)
-            {
-                neighbors[i]?.UpdateOrder(order + 1, ref checkedNodes);
-            }
         }
 
         public static implicit operator bool(MazeNode node) => node != null;

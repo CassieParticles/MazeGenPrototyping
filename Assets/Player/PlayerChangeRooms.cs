@@ -14,5 +14,10 @@ public class PlayerChangeRooms : MonoBehaviour
             gridPosition.y = Mathf.Floor((transform.position.z+5) / 10);
             ChangeRoomEvent?.InvokeListeners();
         }
+
+        if(Input.GetKeyDown(KeyCode.P))
+        {
+            ChangeRoomEvent?.InvokeListeners();
+        }
     }
 }
