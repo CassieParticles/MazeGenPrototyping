@@ -21,6 +21,8 @@ namespace Maze
             grid = new MazeGrid(width, height);
 
             root = null;
+
+            BFG = new List<MazeNode>();
         }
 
         public void SetRootNode(MazeNode node)
