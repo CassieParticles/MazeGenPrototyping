@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
+using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
@@ -29,6 +30,7 @@ namespace Maze
 
         public void SetRootNode(Vector2Int position)
         {
+            if(position.x < 0 || position.x >= grid.width || position.y < 0 || position.y >= grid.height){ return; }
             SetRootNode(grid.IndexFromPosition(position));
         }
 
@@ -37,18 +39,18 @@ namespace Maze
             SetRootNode(grid.GetNode(index));
         }
 
-        public MazeNode AddNode(byte doorFlags, Vector2Int position)
+        public MazeNode AddNode(byte doorFlags, Vector2Int position, GameObject roomObject)
         {
-            return AddNode(doorFlags, grid.IndexFromPosition(position));
+            return AddNode(doorFlags, grid.IndexFromPosition(position),roomObject);
         }
 
 
-        public MazeNode AddNode(byte doorFlags, int index)
+        public MazeNode AddNode(byte doorFlags, int index, GameObject roomObject)
         {
             Vector2Int position = grid.PositionFromIndex(index);
 
             //Add node
-            MazeNode node = grid.AddNode(new MazeNode(doorFlags,grid.PositionFromIndex(index),index), index);
+            MazeNode node = grid.AddNode(new MazeNode(doorFlags,grid.PositionFromIndex(index),index,roomObject), index);
 
             //Set up connections (only if those doors exist)
             MazeNode rightNode = node.RightDoor ? grid.GetNode(position + Vector2Int.right) : null;
@@ -99,6 +101,9 @@ namespace Maze
         //Neighbors it's connected to (only ones that exist)
         MazeNode[] neighbors;   //Right, up, left, down
 
+        //The game object for the room in the scene
+        GameObject roomObject;
+
         public MazeNode RightNode { get => neighbors[0]; set { neighbors[0] = value; } }
         public MazeNode UpNode { get => neighbors[1]; set { neighbors[1] = value; } }
         public MazeNode LeftNode { get => neighbors[2]; set { neighbors[2] = value; } }
@@ -117,13 +122,23 @@ namespace Maze
 
         public int order { get; private set; }
 
-        public MazeNode(byte doorFlags,Vector2Int position, int index)
+        public MazeNode(byte doorFlags,Vector2Int position, int index, GameObject roomObject)
         {
             neighbors = new MazeNode[4];
             this.doorFlags = doorFlags;
 
             this.position = position;
             this.index = index;
+
+            this.roomObject = roomObject;
+
+            roomObject.transform.position = new Vector3(position.x * 10, 0, position.y * 10);
+        }
+
+        ~MazeNode()
+        {
+            //Destroy the room attached
+            GameObject.Destroy(roomObject);
         }
 
         public void UpdateOrder(int order, ref List<int> checkedNodes)

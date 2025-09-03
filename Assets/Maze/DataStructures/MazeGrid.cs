@@ -21,6 +21,7 @@ namespace Maze
 
         public MazeNode AddNode(MazeNode node, Vector2Int position)
         {
+            if (position.x < 0 || position.x >= width || position.y < 0 || position.y >= height){ return null; }
             return AddNode(node, IndexFromPosition(position));
         }
 
@@ -31,6 +32,7 @@ namespace Maze
 
         public MazeNode GetNode(Vector2Int position)
         {
+            if (position.x < 0 || position.x >= width || position.y < 0 || position.y >= height){ return null; }
             return GetNode(IndexFromPosition(position));
         }
 
