@@ -41,6 +41,32 @@ namespace Maze
             return nodeArray[index];
         }
 
+        public void RemoveNode(MazeNode node)
+        {
+            //Remove neighbor references
+            if (node.LeftNode){ node.LeftNode.RightNode = null; }
+            if (node.UpNode){ node.UpNode.DownNode = null; }
+            if (node.RightNode){ node.RightNode.LeftNode = null; }
+            if (node.DownNode){ node.DownNode.UpNode = null; }
+
+            //Destroy attached gameobject
+            GameObject.Destroy(nodeArray[node.index].roomObject);
+
+            //Remove node from array
+            nodeArray[node.index] = null;
+        }
+
+        public void RemoveNode(Vector2Int position)
+        {
+            if (position.x < 0 || position.x >= width || position.y < 0 || position.y >= height){ return; }
+            RemoveNode(IndexFromPosition(position));
+        }
+
+        public void RemoveNode(int index)
+        {
+            RemoveNode(GetNode(index));
+        }
+
         public int IndexFromPosition(Vector2Int position)
         {
             return position.y * width + position.x;

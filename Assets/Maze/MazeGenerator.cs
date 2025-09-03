@@ -1,39 +1,22 @@
 using Maze;
-using UnityEditor.Experimental.GraphView;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class MazeGenerator : MonoBehaviour
 {
     [SerializeField] private GameObject[] RoomTemplates;
+    [SerializeField] private int roomDepth;
 
     private Graph mazeGraph;
+
+    private PlayerMovement player;
 
     private void Awake()
     {
         mazeGraph = new Graph(10, 10);
 
-        //CreateRoom(0b00001111, new Vector2Int(3, 2),ref mazeGraph);    //Root
-
-        //CreateRoom(0b00001011, new Vector2Int(4, 2),ref mazeGraph);    //Top and Right (connected as a loop)
-        //CreateRoom(0b00000110, new Vector2Int(5, 2),ref mazeGraph);
-        //CreateRoom(0b00000011, new Vector2Int(5, 3),ref mazeGraph);
-        //CreateRoom(0b00001110, new Vector2Int(4, 3),ref mazeGraph);
-        //CreateRoom(0b00001001, new Vector2Int(3, 3),ref mazeGraph);
-        //CreateRoom(0b00000011, new Vector2Int(4, 4),ref mazeGraph);
-        //CreateRoom(0b00001000, new Vector2Int(3, 4),ref mazeGraph);
-        //CreateRoom(0b00001101, new Vector2Int(4, 1),ref mazeGraph);
-        //CreateRoom(0b00000110, new Vector2Int(4, 0),ref mazeGraph);
-        //CreateRoom(0b00001000, new Vector2Int(3, 0),ref mazeGraph);
-
-        //CreateRoom(0b00000110, new Vector2Int(3, 1),ref mazeGraph);    //Bottom
-        //CreateRoom(0b00001011, new Vector2Int(2, 1),ref mazeGraph);
-        //CreateRoom(0b00001000, new Vector2Int(1, 1),ref mazeGraph);
-        //CreateRoom(0b00000100, new Vector2Int(2, 0),ref mazeGraph);
-
-        //CreateRoom(0b00001100, new Vector2Int(2, 2),ref mazeGraph);    //Left
-        //CreateRoom(0b00000011, new Vector2Int(2, 3),ref mazeGraph);
-        //CreateRoom(0b00001010, new Vector2Int(1, 3),ref mazeGraph);
-        //CreateRoom(0b00001000, new Vector2Int(0, 3),ref mazeGraph);
+        player = FindAnyObjectByType<PlayerMovement>();
 
         for(int x=0;x<10;++x)
         {
@@ -43,15 +26,62 @@ public class MazeGenerator : MonoBehaviour
             }
         }
 
-        mazeGraph.SetRootNode(new Vector2Int(3, 2));
-
-        Debug.Log(mazeGraph.root);
+        mazeGraph.SetRootNode(new Vector2Int(0, 0));
     }
 
-    private MazeNode CreateRoom(byte doorFlags, Vector2Int position, ref Graph mazeGraph)
+    public void PlayerChangeRooms()
     {
-        //Create node and return it
-        return mazeGraph.AddNode(doorFlags, position, GameObject.Instantiate(RoomTemplates[(int)doorFlags]));
+        Vector2Int newGridPos = Vector2Int.zero;
+
+        newGridPos.x = (int)player.transform.position.x / 10;
+        newGridPos.y = (int)player.transform.position.z / 10;
+
+        Debug.Log("Updating root");
+        UpdateMaze(newGridPos, ref mazeGraph);
+    }
+
+    private void UpdateMaze(Vector2Int rootGridPosition, ref Graph mazeGraph)
+    {
+        //Set the root and update the grid with new orders
+        mazeGraph.SetRootNode(rootGridPosition);
+
+        //Breadth first traversal to remove orders too high and add new nodes on rooms too low
+        List<int> visitedNodes = new List<int>();
+        Queue<MazeNode> nodesToVisit = new Queue<MazeNode>();
+
+        //Add root to the queue
+        MazeNode root = mazeGraph.root;
+        nodesToVisit.Enqueue(root);
+        visitedNodes.Add(root.index);
+
+        //Iterate through all nodes still yet to visit
+        while(nodesToVisit.Count > 0)
+        {
+            //Add the current node
+            MazeNode current = nodesToVisit.Dequeue();
+
+            //Skip node if it's already visited
+            if(visitedNodes.Contains(current.index))
+            {
+                continue;
+            }
+
+            visitedNodes.Add(current.index);
+
+            
+
+            //Adding children to end ensures all nodes of this order are traversed before next order
+            for(int i=0;i<4;++i)
+            {
+                //Null check
+                MazeNode neighbor = current.neighbors[i];
+                if (!neighbor){ continue; }
+
+                //Checks to see if room should be destroyed or new room added
+
+                nodesToVisit.Enqueue((MazeNode)neighbor);
+            }
+        }
     }
 
     private MazeNode GenerateRandomNode(Vector2Int position, ref Graph mazeGraph)
@@ -63,9 +93,9 @@ public class MazeGenerator : MonoBehaviour
         MazeNode upNode = mazeGraph.GetNode(position + Vector2Int.up);
         MazeNode leftNode = mazeGraph.GetNode(position + Vector2Int.left);
         MazeNode downNode = mazeGraph.GetNode(position + Vector2Int.down);
-        
+
         //Right door
-        if(rightNode)
+        if (rightNode)
         {
             doorFlags |= (rightNode.LeftDoor ? (byte)0b00001000 : (byte)0b00000000);
         }
@@ -105,17 +135,13 @@ public class MazeGenerator : MonoBehaviour
         }
 
         //Create node and return it
-        return CreateRoom(doorFlags,position,ref mazeGraph);
+        return CreateRoom(doorFlags, position, ref mazeGraph);
     }
 
-    void Start()
+    private MazeNode CreateRoom(byte doorFlags, Vector2Int position, ref Graph mazeGraph)
     {
-
+        //Create node and return it
+        return mazeGraph.AddNode(doorFlags, position, GameObject.Instantiate(RoomTemplates[(int)doorFlags]));
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

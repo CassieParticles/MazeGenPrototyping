@@ -43,8 +43,6 @@ namespace Maze
         {
             return AddNode(doorFlags, grid.IndexFromPosition(position),roomObject);
         }
-
-
         public MazeNode AddNode(byte doorFlags, int index, GameObject roomObject)
         {
             Vector2Int position = grid.PositionFromIndex(index);
@@ -83,6 +81,21 @@ namespace Maze
             return node;
         }
 
+        public void RemoveNode(MazeNode node)
+        {
+            grid.RemoveNode(node);
+        }
+
+        public void RemoveNode(Vector2Int position)
+        {
+            grid.RemoveNode(position);
+        }
+
+        public void RemoveNode(int index)
+        {
+            grid.RemoveNode(index);
+        }
+
         public MazeNode GetNode(Vector2Int position)
         {
             return grid.GetNode(position);
@@ -99,10 +112,10 @@ namespace Maze
     public class MazeNode
     {
         //Neighbors it's connected to (only ones that exist)
-        MazeNode[] neighbors;   //Right, up, left, down
+        public MazeNode[] neighbors { get; private set; }   //Right, up, left, down
 
         //The game object for the room in the scene
-        GameObject roomObject;
+        public GameObject roomObject { get; private set; }
 
         public MazeNode RightNode { get => neighbors[0]; set { neighbors[0] = value; } }
         public MazeNode UpNode { get => neighbors[1]; set { neighbors[1] = value; } }
@@ -110,7 +123,7 @@ namespace Maze
         public MazeNode DownNode { get => neighbors[3]; set { neighbors[3] = value; } }
 
         //Doors to other rooms (connections that could be made)
-        private byte doorFlags; //Layout 0b0000RULD
+        public byte doorFlags { get; private set; } //Layout 0b0000RULD
 
         public Vector2Int position { get; private set; }
         public int index { get;private set; }
@@ -137,8 +150,7 @@ namespace Maze
 
         ~MazeNode()
         {
-            //Destroy the room attached
-            GameObject.Destroy(roomObject);
+            Debug.Log("Node destroyed");
         }
 
         public void UpdateOrder(int order, ref List<int> checkedNodes)

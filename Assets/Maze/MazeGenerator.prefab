@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7483511926853330586}
   - component: {fileID: -9023848302054043929}
+  - component: {fileID: 8360622931899514710}
   m_Layer: 0
   m_Name: MazeGenerator
   m_TagString: Untagged
@@ -61,3 +62,31 @@ MonoBehaviour:
   - {fileID: 4732527026119477719, guid: 936608818c15f0c4880a1e9ebf47f26f, type: 3}
   - {fileID: 1364998889674056697, guid: e823e5f2fb6919944aa6effa33fbd4ef, type: 3}
   - {fileID: 721934315472369018, guid: 4aa7077d2e00f98428597551b20e548d, type: 3}
+--- !u!114 &8360622931899514710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3265434276570534448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7631186d4b41b014bb125cadfd381024, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eventSignal: {fileID: 11400000, guid: 069fff8083d55cf4389f801df24df749, type: 2}
+  events:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: -9023848302054043929}
+        m_TargetAssemblyTypeName: MazeGenerator, Assembly-CSharp
+        m_MethodName: PlayerChangeRooms
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
